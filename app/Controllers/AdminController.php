@@ -30,6 +30,11 @@ class AdminController extends BaseController
         $userModel = new User();
         $user = $userModel->find($id);
 
+        // Add this check
+        if (! $user) {
+            return redirect()->back()->with('error', 'User not found.');
+        }
+
         // Input validation for amount and action
         $rules = [
             'amount' => 'required|numeric|greater_than[0]',
