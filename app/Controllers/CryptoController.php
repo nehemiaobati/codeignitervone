@@ -38,7 +38,7 @@ class CryptoController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $this->validator->getErrors());
         }
 
         $asset = $this->request->getPost('asset');
@@ -91,7 +91,7 @@ class CryptoController extends BaseController
         }
 
         if (!empty($errors)) {
-            return redirect()->back()->withInput()->with('errors', $errors);
+            return redirect()->back()->withInput()->with('error', $errors);
         }
 
         return redirect()->back()->withInput()->with('result', $result);

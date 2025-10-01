@@ -36,5 +36,10 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Add the pagination links -->
+    <div class="d-flex justify-content-center">
+        <?= $pager->links() ?>
+    </div>
 </div>
 <?= $this->endSection() ?>

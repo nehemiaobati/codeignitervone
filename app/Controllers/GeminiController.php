@@ -23,7 +23,7 @@ class GeminiController extends BaseController
         $data = [
             'title' => 'Gemini AI Query',
             'result' => session()->getFlashdata('result'),
-            'errors' => session()->getFlashdata('errors')
+            'error' => session()->getFlashdata('error')
         ];
         return view('gemini/query_form', $data); // View name updated
     }
@@ -31,22 +31,15 @@ class GeminiController extends BaseController
     public function generate(): RedirectResponse
     {
         $userId = (int) session()->get('userId'); // Cast userId to integer
-        if ($userId > 0) { // Check if userId is valid (greater than 0)
-            $user = $this->userModel->find($userId);
-            $deductionAmount = 10;
-
-            if (!$user || $user->balance < $deductionAmount) {
-                return redirect()->back()->withInput()->with('errors', ['error' => 'Insufficient balance. Please top up your account.']);
-            }
-        } else {
-            return redirect()->back()->withInput()->with('errors', ['error' => 'User not logged in or invalid user ID. Cannot deduct balance.']);
+        if ($userId <= 0) {
+            return redirect()->back()->withInput()->with('error', ['User not logged in or invalid user ID. Cannot deduct balance.']);
         }
 
         $user = $this->userModel->find($userId);
         $deductionAmount = 10;
 
         if (!$user || $user->balance < $deductionAmount) {
-            return redirect()->back()->withInput()->with('errors', ['error' => 'Insufficient balance. Please top up your account.']);
+            return redirect()->back()->withInput()->with('error', ['Insufficient balance. Please top up your account.']);
         }
 
         $inputText = $this->request->getPost('prompt');
@@ -73,11 +66,11 @@ class GeminiController extends BaseController
                     $mimeType = $file->getMimeType();
 
                     if (!in_array($mimeType, $supportedMimeTypes)) {
-                        return redirect()->back()->withInput()->with('errors', ['error' => "Unsupported file type: {$mimeType}. Please upload only supported media types."]);
+                        return redirect()->back()->withInput()->with('error', ["Unsupported file type: {$mimeType}. Please upload only supported media types."]);
                     }
 
                     if ($file->getSize() > $maxFileSize) {
-                        return redirect()->back()->withInput()->with('errors', ['error' => 'Uploaded file is too large. Maximum allowed size is 10 MB.']);
+                        return redirect()->back()->withInput()->with('error', ['Uploaded file is too large. Maximum allowed size is 10 MB.']);
                     }
 
                     $filePath = $file->getTempName();
@@ -95,13 +88,13 @@ class GeminiController extends BaseController
         }
 
         if (empty($parts)) {
-            return redirect()->back()->withInput()->with('errors', ['error' => 'Prompt or supported media is required.']);
+            return redirect()->back()->withInput()->with('error', ['Prompt or supported media is required.']);
         }
 
         $response = $this->geminiService->generateContent($parts);
 
         if (isset($response['error'])) {
-            return redirect()->back()->withInput()->with('errors', ['error' => $response['error']]);
+            return redirect()->back()->withInput()->with('error', ['error' => $response['error']]);
         }
 
         if ($this->userModel->deductBalance($userId, $deductionAmount)) {

@@ -40,7 +40,7 @@ class PaymentsController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $this->validator->getErrors());
         }
 
         $email  = $this->request->getPost('email');
@@ -65,7 +65,7 @@ class PaymentsController extends BaseController
             return redirect()->to($response['data']['authorization_url']);
         }
 
-        return redirect()->back()->with('errors', ['paystack' => $response['message']]);
+        return redirect()->back()->with('error', ['paystack' => $response['message']]);
     }
 
     public function verify(): RedirectResponse
@@ -74,7 +74,7 @@ class PaymentsController extends BaseController
         $paystackReference = $this->request->getGet('trxref');
 
         if (empty($appReference) || empty($paystackReference)) {
-            return redirect()->to(url_to('payment.index'))->with('errors', ['payment' => 'Payment reference not found.']);
+            return redirect()->to(url_to('payment.index'))->with('error', ['payment' => 'Payment reference not found.']);
         }
 
         $payment = $this->paymentModel->where('reference', $appReference)->first();
@@ -107,6 +107,6 @@ class PaymentsController extends BaseController
             'paystack_response' => json_encode($response['data'] ?? $response),
         ]);
 
-        return redirect()->to(url_to('payment.index'))->with('errors', ['payment' => $response['message'] ?? 'Payment verification failed.']);
+        return redirect()->to(url_to('payment.index'))->with('error', ['payment' => $response['message'] ?? 'Payment verification failed.']);
     }
 }

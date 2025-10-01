@@ -24,7 +24,7 @@ class PortfolioController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()->back()->withInput()->with('error', $this->validator->getErrors());
         }
 
         $name    = $this->request->getPost('name');

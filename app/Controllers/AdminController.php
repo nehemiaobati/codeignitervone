@@ -1,39 +1,42 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
-use CodeIgniter\HTTP\RedirectResponse;
 
 class AdminController extends BaseController
 {
-    public function index(): string
+    public function index()
     {
         $userModel = new UserModel();
-        $data['users'] = $userModel->findAll(); // This will be updated in Phase 2
+        // Replace findAll() with paginate() for better performance
+        $data['users'] = $userModel->paginate(10);
+        $data['pager'] = $userModel->pager; // Pass the pager instance to the view
         $data['total_balance'] = $userModel->getTotalBalance();
 
-        return view('admin/index_view', $data); // View name updated
+        return view('admin/index_view', $data);
     }
 
-    public function show($id): string
+    public function show($id)
     {
         $userModel = new UserModel();
         $data['user'] = $userModel->find($id);
 
-        return view('admin/user_details', $data); // View name updated
+        return view('admin/user_details', $data);
     }
 
-    public function updateBalance($id): RedirectResponse
+    public function updateBalance($id)
     {
         $userModel = new UserModel();
+        // Check if bcmath extension is loaded for precise calculations
         if (!extension_loaded('bcmath')) {
             log_message('error', 'bcmath extension is not loaded. Balance calculations may be inaccurate.');
         }
 
         $user = $userModel->find($id);
 
+        // Input validation for amount and action
         $rules = [
             'amount' => 'required|numeric|greater_than[0]',
             'action' => 'required|in_list[deposit,withdraw]',
@@ -43,15 +46,18 @@ class AdminController extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $amount = (float) $this->request->getPost('amount');
+        $amount = (float) $this->request->getPost('amount'); // Cast to float for precision
         $action = $this->request->getPost('action');
 
-        $newBalance = $user->balance;
+        $newBalance = $user->balance; // Initialize with current balance
 
         if ($action === 'deposit') {
+            // Use bcadd for precise float addition
             $newBalance = bcadd((string) $user->balance, (string) $amount, 2);
         } elseif ($action === 'withdraw') {
+            // Check for sufficient balance before withdrawal
             if (bccomp((string) $user->balance, (string) $amount, 2) >= 0) {
+                // Use bcsub for precise float subtraction
                 $newBalance = bcsub((string) $user->balance, (string) $amount, 2);
             } else {
                 return redirect()->back()->withInput()->with('error', 'Insufficient balance.');
@@ -63,11 +69,12 @@ class AdminController extends BaseController
         return redirect()->to(url_to('admin.users.show', $id))->with('success', 'Balance updated successfully.');
     }
 
-    public function delete($id): RedirectResponse
+    public function delete($id)
     {
         $userModel = new UserModel();
-        $currentUserId = session()->get('userId');
+        $currentUserId = session()->get('userId'); // Get the ID of the currently logged-in user
 
+        // Prevent admin from deleting themselves
         if ($id == $currentUserId) {
             return redirect()->back()->with('error', 'You cannot delete your own account.');
         }

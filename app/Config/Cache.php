@@ -20,8 +20,10 @@ class Cache extends BaseConfig
      *
      * The name of the preferred handler that should be used. If for some reason
      * it is not available, the $backupHandler will be used in its place.
+     *
+     * Changed to 'redis' for production performance.
      */
-    public string $handler = 'file';
+    public string $handler = 'redis';
 
     /**
      * --------------------------------------------------------------------------
@@ -31,8 +33,10 @@ class Cache extends BaseConfig
      * The name of the handler that will be used in case the first one is
      * unreachable. Often, 'file' is used here since the filesystem is
      * always available, though that's not always practical for the app.
+     *
+     * Changed to 'file' to act as a resilient fallback.
      */
-    public string $backupHandler = 'dummy';
+    public string $backupHandler = 'file';
 
     /**
      * --------------------------------------------------------------------------
@@ -41,8 +45,10 @@ class Cache extends BaseConfig
      *
      * This string is added to all cache item names to help avoid collisions
      * if you run multiple applications with the same cache engine.
+     *
+     * Added a unique prefix for this application.
      */
-    public string $prefix = '';
+    public string $prefix = 'afrikenkid:';
 
     /**
      * --------------------------------------------------------------------------
