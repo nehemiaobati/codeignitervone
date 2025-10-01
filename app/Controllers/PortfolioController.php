@@ -12,7 +12,7 @@ class PortfolioController extends BaseController
 {
     public function index()
     {
-        return view('pages/portfolio');
+        return view('portfolio/portfolio');
     }
 
     public function sendEmail()
