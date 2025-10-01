@@ -100,17 +100,7 @@ class PaymentsController extends BaseController
 
             // Accumulate balance
             if ($payment->user_id) { // Ensure user_id is available
-                $user = $this->userModel->find($payment->user_id); // Find the user
-
-                if ($user) {
-                    // Use the entity to update balance
-                    // Ensure balance is treated as a string for bcadd
-                    $currentBalance = is_string($user->balance) ? $user->balance : (string) $user->balance;
-                    $paymentAmount = is_string($payment->amount) ? $payment->amount : (string) $payment->amount;
-                    
-                    $user->balance = bcadd($currentBalance ?? '0.00', $paymentAmount, 2);
-                    $this->userModel->save($user); // Save the updated user
-                }
+                $this->userModel->addBalance($payment->user_id, (string) $payment->amount);
             }
 
             return redirect()->to(url_to('payment.index'))->with('success', 'Payment successful!');

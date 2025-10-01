@@ -74,25 +74,13 @@ class CryptoController extends BaseController
             // Deduct balance if query was successful and user has enough balance
             if (empty($errors)) { // Check if crypto query itself had errors
                 $userId = session()->get('userId'); // Corrected session key
+                $deductionAmount = 10; // Amount to deduct for a successful query
 
                 if ($userId) {
-                    $user = $this->userModel->find($userId);
-
-                    $deductionAmount = 10; // Amount to deduct for a successful query
-
-                    if ($user && $user->balance >= $deductionAmount) {
-                        $user->balance -= $deductionAmount;
-                        if ($this->userModel->save($user)) {
-                            session()->setFlashdata('success', $deductionAmount . ' units deducted for query.');
-                        } else {
-                            $errors[] = 'Failed to update balance after successful query.';
-                            log_message('error', 'Failed to save user balance after crypto query.');
-                        }
-                    } elseif ($user && $user->balance < $deductionAmount) {
-                        $errors[] = 'Insufficient balance to perform this query.';
+                    if ($this->userModel->deductBalance($userId, $deductionAmount)) {
+                        session()->setFlashdata('success', "{$deductionAmount} units deducted for query.");
                     } else {
-                        $errors[] = 'User not found or invalid user session.';
-                        log_message('error', 'User not found or invalid session during balance deduction.');
+                        $errors[] = 'Insufficient balance or failed to update balance.';
                     }
                 } else {
                     $errors[] = 'User not logged in. Cannot deduct balance.';

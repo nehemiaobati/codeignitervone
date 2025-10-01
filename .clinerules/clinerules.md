@@ -63,6 +63,15 @@ CodeIgniter 4 Production Deployment Rules & Workflow
 2.  Enable exception logging by setting $log to true in app/Config/Exceptions.php.
 3.  Configure the logging threshold in app/Config/Logger.php to an appropriate level for production (e.g., 4 for errors).
 4.  Create custom error pages for common HTTP status codes in app/Views/errors/html/.
+5.  **PHP Extension Checks**: When a specific PHP extension is required for a feature, include a check to ensure the extension is loaded. If it is not, log an error message to assist with debugging in new deployment instances. For example:
+    ```php
+    // Check if bcmath extension is loaded for precise calculations
+    if (!extension_loaded('bcmath')) {
+        log_message('error', 'bcmath extension is not loaded. Balance calculations may be inaccurate.');
+        // Optionally, you could return an error response here if this is critical
+        // return redirect()->back()->with('error', 'Server configuration error: Missing bcmath extension.');
+    }
+    ```
 
  6\. Performance Optimization
 

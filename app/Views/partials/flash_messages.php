@@ -34,15 +34,4 @@ elseif ($warning = session()->getFlashdata('warning')) : ?>
     <div class="alert alert-warning" role="alert">
         <?= esc($warning) ?>
     </div>
-<?php
-// Check for validation errors
-elseif ($errors = session()->getFlashdata('errors')) : ?>
-    <div class="alert alert-danger" role="alert">
-        <p>Please correct the following errors:</p>
-        <ul class="list-unstyled mb-0">
-            <?php foreach ($errors as $err): ?>
-                <li><?= esc($err) ?></li>
-            <?php endforeach; ?>
-        </ul>
-    </div>
 <?php endif; ?>

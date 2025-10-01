@@ -3,27 +3,45 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\User; // Import the User model
+use App\Libraries\GeminiService;
 use CodeIgniter\HTTP\ResponseInterface;
 
 class GeminiController extends BaseController
 {
+    protected $userModel;
+    protected $geminiService;
+
+    public function __construct()
+    {
+        $this->userModel = new User();
+        $this->geminiService = new GeminiService();
+    }
+
     public function index()
     {
-        return view('gemini/index');
+        $data = [
+            'title' => 'Gemini AI Query',
+            'result' => session()->getFlashdata('result'),
+            'errors' => session()->getFlashdata('errors')
+        ];
+        return view('gemini/index', $data);
     }
 
     public function generate()
     {
-        // Get API key from .env file
-        // Prefer CodeIgniter's env() helper
-        $geminiApiKey = env('GEMINI_API_KEY') ?? getenv('GEMINI_API_KEY');
-        if (!$geminiApiKey) {
-            // Return JSON error if API key is not set
-            return $this->response->setStatusCode(500)->setJSON(['error' => 'GEMINI_API_KEY not set in .env file.']);
+        // Check user balance before proceeding
+        $userId = session()->get('userId');
+        if (!$userId) {
+            return redirect()->back()->withInput()->with('errors', ['error' => 'You must be logged in to use this feature.']);
         }
 
-        $modelId = "gemini-flash-lite-latest";
-        $generateContentApi = "streamGenerateContent";
+        $user = $this->userModel->find($userId);
+        $deductionAmount = 10; // Cost per AI query
+
+        if (!$user || $user->balance < $deductionAmount) {
+            return redirect()->back()->withInput()->with('errors', ['error' => 'Insufficient balance. Please top up your account.']);
+        }
 
         // Get input text from the request
         $inputText = $this->request->getPost('prompt');
@@ -55,12 +73,12 @@ class GeminiController extends BaseController
                     // Validate MIME type
                     if (!in_array($mimeType, $supportedMimeTypes)) {
                         // Return an error if any file type is unsupported
-                        return $this->response->setStatusCode(400)->setJSON(['error' => "Unsupported file type: {$mimeType}. Please upload only supported media types."]);
+                        return redirect()->back()->withInput()->with('errors', ['error' => "Unsupported file type: {$mimeType}. Please upload only supported media types."]);
                     }
 
                     // Validate file size
                     if ($file->getSize() > $maxFileSize) {
-                        return $this->response->setStatusCode(413)->setJSON(['error' => 'Uploaded file is too large. Maximum allowed size is 10 MB.']);
+                        return redirect()->back()->withInput()->with('errors', ['error' => 'Uploaded file is too large. Maximum allowed size is 10 MB.']);
                     }
 
                     $filePath = $file->getTempName();
@@ -81,97 +99,24 @@ class GeminiController extends BaseController
 
         // Check if there's any input (prompt or supported media)
         if (empty($parts)) {
-            return $this->response->setStatusCode(400)->setJSON(['error' => 'Prompt or supported media is required.']);
+            return redirect()->back()->withInput()->with('errors', ['error' => 'Prompt or supported media is required.']);
         }
 
-        $requestPayload = [
-            "contents" => [
-                [
-                    "role" => "user",
-                    "parts" => $parts
-                ]
-            ],
-            "generationConfig" => [
-                "thinkingConfig" => [
-                    "thinkingBudget" => -1,
-                ],
-            ],
-            "tools" => [
-                [
-                    "googleSearch" => (object)[] // Empty object for googleSearch tool
-                ]
-            ],
-        ];
+        $response = $this->geminiService->generateContent($parts);
 
-        // Prepare the request body for curl
-        $requestBody = json_encode($requestPayload, JSON_PRETTY_PRINT); // Use JSON_PRETTY_PRINT for readability
-
-        // Write the request payload to a file for debugging
-        $logFilePath = WRITEPATH . 'logs/gemini_payload.log';
-        file_put_contents($logFilePath, "--- Request Payload (" . date('Y-m-d H:i:s') . ") ---\n", FILE_APPEND);
-        file_put_contents($logFilePath, $requestBody . "\n\n", FILE_APPEND);
-
-        // Use CodeIgniter's HTTP client service for a robust solution.
-        $client = \Config\Services::curlrequest();
-
-        try {
-            $response = $client->setBody($requestBody)
-                               ->setHeader('Content-Type', 'application/json')
-                               ->post("https://generativelanguage.googleapis.com/v1beta/models/{$modelId}:{$generateContentApi}?key={$geminiApiKey}");
-
-            $responseBody = $response->getBody();
-            $responseData = json_decode($responseBody, true);
-
-            if ($response->getStatusCode() !== 200) {
-                // Handle API errors
-                $errorMessage = $responseData['error']['message'] ?? 'Unknown API error';
-                return $this->response->setStatusCode($response->getStatusCode())->setJSON(['error' => $errorMessage]);
-            }
-
-            $processedText = '';
-
-            // --- MODIFIED LOGIC FOR EXTRACTING TEXT ---
-            // Gemini API responses can be an array of chunks (for streamed responses)
-            // or a single object (for non-streamed or single chunk responses).
-            if (is_array($responseData)) {
-                foreach ($responseData as $chunk) {
-                    if (isset($chunk['candidates']) && is_array($chunk['candidates'])) {
-                        foreach ($chunk['candidates'] as $candidate) {
-                            if (isset($candidate['content']['parts']) && is_array($candidate['content']['parts'])) {
-                                foreach ($candidate['content']['parts'] as $part) {
-                                    if (isset($part['text'])) {
-                                        $processedText .= $part['text'];
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            } elseif (isset($responseData['candidates']) && is_array($responseData['candidates'])) {
-                // Handle case where responseData is a single object with candidates
-                foreach ($responseData['candidates'] as $candidate) {
-                    if (isset($candidate['content']['parts']) && is_array($candidate['content']['parts'])) {
-                        foreach ($candidate['content']['parts'] as $part) {
-                            if (isset($part['text'])) {
-                                $processedText .= $part['text'];
-                            }
-                        }
-                    }
-                }
-            }
-            // --- END MODIFIED LOGIC ---
-
-            // Check if full response is requested
-            if ($this->request->getGet('full_response')) {
-                return $this->response->setJSON($responseData); // Return raw response
-            } else {
-                // Return the processed text
-                return $this->response->setJSON(['response' => $processedText]);
-            }
-
-        } catch (\Exception $e) {
-            // Handle exceptions during the request
-            return $this->response->setStatusCode(500)->setJSON(['error' => 'An error occurred while processing your request: ' . $e->getMessage()]);
+        if (isset($response['error'])) {
+            return redirect()->back()->withInput()->with('errors', ['error' => $response['error']]);
         }
+
+        // Deduct balance only on successful API call
+        if ($this->userModel->deductBalance($userId, $deductionAmount)) {
+            session()->setFlashdata('success', "{$deductionAmount} units deducted for your AI query.");
+        } else {
+            log_message('error', 'Failed to update user balance after successful AI query for user ID: ' . $userId);
+            // Optionally, you could set an error flash message here
+        }
+
+        // Store the result in flashdata and redirect back
+        return redirect()->back()->withInput()->with('result', $response['result']);
     }
 }

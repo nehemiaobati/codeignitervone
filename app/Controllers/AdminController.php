@@ -11,8 +11,7 @@ class AdminController extends BaseController
     {
         $userModel = new User();
         $data['users'] = $userModel->findAll(); // Fetch all users as the view expects them
-        $totalBalanceData = $userModel->selectSum('balance')->first();
-        $data['total_balance'] = $totalBalanceData ? $totalBalanceData->balance : '0.00';
+        $data['total_balance'] = $userModel->getTotalBalance();
 
         return view('admin/index', $data);
     }
@@ -28,6 +27,13 @@ class AdminController extends BaseController
     public function updateBalance($id)
     {
         $userModel = new User();
+        // Check if bcmath extension is loaded for precise calculations
+        if (!extension_loaded('bcmath')) {
+            log_message('error', 'bcmath extension is not loaded. Balance calculations may be inaccurate.');
+            // Optionally, you could return an error response here if this is critical
+            // return redirect()->back()->with('error', 'Server configuration error: Missing bcmath extension.');
+        }
+
         $user = $userModel->find($id);
 
         // Input validation for amount and action

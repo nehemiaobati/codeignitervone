@@ -43,4 +43,35 @@ class User extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    public function getTotalBalance(): string
+    {
+        $totalBalanceData = $this->selectSum('balance')->first();
+        return $totalBalanceData ? $totalBalanceData->balance : '0.00';
+    }
+
+    public function deductBalance(int $userId, int $amount): bool
+    {
+        $user = $this->find($userId);
+
+        if ($user && $user->balance >= $amount) {
+            $user->balance -= $amount;
+            return $this->save($user);
+        }
+
+        return false;
+    }
+
+    public function addBalance(int $userId, string $amount): bool
+    {
+        $user = $this->find($userId);
+
+        if ($user) {
+            $currentBalance = is_string($user->balance) ? $user->balance : (string) $user->balance;
+            $user->balance = bcadd($currentBalance ?? '0.00', $amount, 2);
+            return $this->save($user);
+        }
+
+        return false;
+    }
 }
