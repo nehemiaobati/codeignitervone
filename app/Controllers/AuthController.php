@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\User;
+use App\Models\UserModel;
 
 class AuthController extends BaseController
 {
@@ -33,7 +33,7 @@ class AuthController extends BaseController
             return $response;
         }
 
-        $userModel = new User();
+        $userModel = new UserModel();
         $data = [
             'username' => $this->request->getVar('username'),
             'email'    => $this->request->getVar('email'),
@@ -67,7 +67,7 @@ class AuthController extends BaseController
             return $response;
         }
 
-        $userModel = new User();
+        $userModel = new UserModel();
         $email = $this->request->getVar('email');
         $password = $this->request->getVar('password');
 

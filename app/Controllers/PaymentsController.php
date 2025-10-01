@@ -4,8 +4,8 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Libraries\PaystackService;
-use App\Models\Payment;
-use App\Models\User;
+use App\Models\PaymentModel;
+use App\Models\UserModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
 class PaymentsController extends BaseController
@@ -16,9 +16,9 @@ class PaymentsController extends BaseController
 
     public function __construct()
     {
-        $this->paymentModel    = new Payment();
+        $this->paymentModel    = new PaymentModel();
         $this->paystackService = \Config\Services::paystackService();
-        $this->userModel       = new User(); // Instantiate UserModel
+        $this->userModel       = new UserModel(); // Instantiate UserModel
         helper(['form', 'url']);
     }
 
@@ -91,7 +91,7 @@ class PaymentsController extends BaseController
 
         $response = $this->paystackService->verifyTransaction($paystackReference);
 
-        if ($response['status'] === true && $response['data']['status'] === 'success') {
+        if ($response['status'] === true && isset($response['data']['status']) && $response['data']['status'] === 'success') {
             // Update payment status
             $this->paymentModel->update($payment->id, [
                 'status'            => 'success',
@@ -100,7 +100,7 @@ class PaymentsController extends BaseController
 
             // Accumulate balance
             if ($payment->user_id) { // Ensure user_id is available
-                $this->userModel->addBalance($payment->user_id, (string) $payment->amount);
+                $this->userModel->addBalance((int) $payment->user_id, (string) $payment->amount);
             }
 
             return redirect()->to(url_to('payment.index'))->with('success', 'Payment successful!');

@@ -5,7 +5,7 @@ namespace App\Filters;
 use CodeIgniter\Filters\FilterInterface;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
-use App\Models\User; // Assuming User model exists and is accessible
+use App\Models\UserModel; // Assuming User model exists and is accessible
 
 class BalanceFilter implements FilterInterface
 {
@@ -26,7 +26,7 @@ class BalanceFilter implements FilterInterface
             return redirect()->to(url_to('login')); // Changed from direct path '/login'
         }
 
-        $userModel = new User();
+        $userModel = new UserModel();
         $userId = session()->get('userId'); // Changed from 'user_id' to 'userId'
         $user = $userModel->find($userId);
 

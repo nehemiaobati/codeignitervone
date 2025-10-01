@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Models\User;
+use App\Models\UserModel;
 
 class HomeController extends BaseController
 {
@@ -10,7 +10,7 @@ class HomeController extends BaseController
 
     public function __construct()
     {
-        $this->userModel = new User(); // Instantiate UserModel
+        $this->userModel = new UserModel(); // Instantiate UserModel
     }
 
     public function index(): string

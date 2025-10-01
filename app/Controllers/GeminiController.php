@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\User; // Import the User model
+use App\Models\UserModel; // Import the User model
 use App\Libraries\GeminiService;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -14,7 +14,7 @@ class GeminiController extends BaseController
 
     public function __construct()
     {
-        $this->userModel = new User();
+        $this->userModel = new UserModel();
         $this->geminiService = new GeminiService();
     }
 

@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\User;
+use App\Models\UserModel;
 use CodeIgniter\HTTP\ResponseInterface;
 use App\Libraries\CryptoService;
 
@@ -16,7 +16,7 @@ class CryptoController extends BaseController
     public function __construct()
     {
         $this->cryptoService = new CryptoService();
-        $this->userModel = new User();
+        $this->userModel = new UserModel();
     }
 
     public function index()

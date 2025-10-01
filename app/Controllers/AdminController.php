@@ -3,13 +3,13 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\User;
+use App\Models\UserModel;
 
 class AdminController extends BaseController
 {
     public function index()
     {
-        $userModel = new User();
+        $userModel = new UserModel();
         $data['users'] = $userModel->findAll(); // Fetch all users as the view expects them
         $data['total_balance'] = $userModel->getTotalBalance();
 
@@ -18,7 +18,7 @@ class AdminController extends BaseController
 
     public function show($id)
     {
-        $userModel = new User();
+        $userModel = new UserModel();
         $data['user'] = $userModel->find($id);
 
         return view('admin/show', $data);
@@ -26,7 +26,7 @@ class AdminController extends BaseController
 
     public function updateBalance($id)
     {
-        $userModel = new User();
+        $userModel = new UserModel();
         // Check if bcmath extension is loaded for precise calculations
         if (!extension_loaded('bcmath')) {
             log_message('error', 'bcmath extension is not loaded. Balance calculations may be inaccurate.');
@@ -71,7 +71,7 @@ class AdminController extends BaseController
 
     public function delete($id)
     {
-        $userModel = new User();
+        $userModel = new UserModel();
         $currentUserId = session()->get('userId'); // Get the ID of the currently logged-in user
 
         // Prevent admin from deleting themselves
