@@ -1,17 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
-use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\HTTP\RedirectResponse;
 use App\Libraries\CryptoService;
 
 class CryptoController extends BaseController
 {
-    protected $cryptoService;
-
-    protected $userModel;
+    protected CryptoService $cryptoService;
+    protected UserModel $userModel;
 
     public function __construct()
     {
@@ -19,24 +18,22 @@ class CryptoController extends BaseController
         $this->userModel = new UserModel();
     }
 
-    public function index()
+    public function index(): string
     {
         $data = [
             'title' => 'Crypto Query',
             'result' => session()->getFlashdata('result'),
             'errors' => session()->getFlashdata('errors')
         ];
-        return view('crypto/index', $data);
+        return view('crypto/query_form', $data); // View name updated
     }
 
-    public function query()
+    public function query(): RedirectResponse
     {
-        
-
         $rules = [
             'asset' => 'required|in_list[btc,ltc]',
             'query_type' => 'required|in_list[balance,tx]',
-            'address' => 'required|min_length[26]|max_length[55]', // Common BTC/LTC address length
+            'address' => 'required|min_length[26]|max_length[55]',
             'limit' => 'permit_empty|integer|greater_than[0]|less_than_equal_to[50]'
         ];
 
@@ -56,13 +53,13 @@ class CryptoController extends BaseController
             if ($asset === 'btc') {
                 if ($queryType === 'balance') {
                     $result = $this->cryptoService->getBtcBalance($address);
-                } else { // tx
+                } else {
                     $result = $this->cryptoService->getBtcTransactions($address, $limit);
                 }
             } elseif ($asset === 'ltc') {
                 if ($queryType === 'balance') {
                     $result = $this->cryptoService->getLtcBalance($address);
-                } else { // tx
+                } else {
                     $result = $this->cryptoService->getLtcTransactions($address, $limit);
                 }
             }
@@ -71,21 +68,21 @@ class CryptoController extends BaseController
                 $errors[] = $result['error'];
             }
 
-            // Deduct balance if query was successful and user has enough balance
-            if (empty($errors)) { // Check if crypto query itself had errors
-                $userId = session()->get('userId'); // Corrected session key
-                $deductionAmount = 10; // Amount to deduct for a successful query
+            if (empty($errors)) {
+                $userId = session()->get('userId');
+                $deductionAmount = 10;
 
-                if ($userId) {
-                    if ($this->userModel->deductBalance($userId, $deductionAmount)) {
-                        session()->setFlashdata('success', "{$deductionAmount} units deducted for query.");
-                    } else {
-                        $errors[] = 'Insufficient balance or failed to update balance.';
-                    }
-                } else {
-                    $errors[] = 'User not logged in. Cannot deduct balance.';
-                    log_message('error', 'User not logged in during balance deduction.');
-                }
+        $userId = (int) session()->get('userId'); // Cast userId to integer
+        if ($userId > 0) { // Check if userId is valid (greater than 0)
+            if ($this->userModel->deductBalance($userId, $deductionAmount)) {
+                session()->setFlashdata('success', "{$deductionAmount} units deducted for query.");
+            } else {
+                $errors[] = 'Insufficient balance or failed to update balance.';
+            }
+        } else {
+            $errors[] = 'User not logged in or invalid user ID. Cannot deduct balance.';
+            log_message('error', 'User not logged in or invalid user ID during balance deduction.');
+        }
             }
 
         } catch (\Exception $e) {

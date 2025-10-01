@@ -1,16 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\UserModel; // Import the User model
+use App\Models\UserModel;
 use App\Libraries\GeminiService;
-use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\HTTP\RedirectResponse;
 
 class GeminiController extends BaseController
 {
-    protected $userModel;
-    protected $geminiService;
+    protected UserModel $userModel;
+    protected GeminiService $geminiService;
 
     public function __construct()
     {
@@ -18,37 +18,40 @@ class GeminiController extends BaseController
         $this->geminiService = new GeminiService();
     }
 
-    public function index()
+    public function index(): string
     {
         $data = [
             'title' => 'Gemini AI Query',
             'result' => session()->getFlashdata('result'),
             'errors' => session()->getFlashdata('errors')
         ];
-        return view('gemini/index', $data);
+        return view('gemini/query_form', $data); // View name updated
     }
 
-    public function generate()
+    public function generate(): RedirectResponse
     {
-        // Check user balance before proceeding
-        $userId = session()->get('userId');
-        if (!$userId) {
-            return redirect()->back()->withInput()->with('errors', ['error' => 'You must be logged in to use this feature.']);
+        $userId = (int) session()->get('userId'); // Cast userId to integer
+        if ($userId > 0) { // Check if userId is valid (greater than 0)
+            $user = $this->userModel->find($userId);
+            $deductionAmount = 10;
+
+            if (!$user || $user->balance < $deductionAmount) {
+                return redirect()->back()->withInput()->with('errors', ['error' => 'Insufficient balance. Please top up your account.']);
+            }
+        } else {
+            return redirect()->back()->withInput()->with('errors', ['error' => 'User not logged in or invalid user ID. Cannot deduct balance.']);
         }
 
         $user = $this->userModel->find($userId);
-        $deductionAmount = 10; // Cost per AI query
+        $deductionAmount = 10;
 
         if (!$user || $user->balance < $deductionAmount) {
             return redirect()->back()->withInput()->with('errors', ['error' => 'Insufficient balance. Please top up your account.']);
         }
 
-        // Get input text from the request
         $inputText = $this->request->getPost('prompt');
-        // Get uploaded media reliably (works for single and multiple files)
         $uploadedFiles = $this->request->getFileMultiple('media') ?: [];
 
-        // Define supported MIME types based on Gemini API documentation
         $supportedMimeTypes = [
             'image/png', 'image/jpeg', 'image/webp',
             'audio/mpeg', 'audio/mp3', 'audio/wav',
@@ -62,28 +65,22 @@ class GeminiController extends BaseController
             $parts[] = ['text' => $inputText];
         }
 
-        // Limit per-file size (bytes) to avoid memory issues when base64 encoding
-        $maxFileSize = 10 * 1024 * 1024; // 10 MB (adjust as needed)
+        $maxFileSize = 10 * 1024 * 1024;
 
         if (!empty($uploadedFiles)) {
             foreach ($uploadedFiles as $file) {
                 if ($file->isValid()) {
                     $mimeType = $file->getMimeType();
 
-                    // Validate MIME type
                     if (!in_array($mimeType, $supportedMimeTypes)) {
-                        // Return an error if any file type is unsupported
                         return redirect()->back()->withInput()->with('errors', ['error' => "Unsupported file type: {$mimeType}. Please upload only supported media types."]);
                     }
 
-                    // Validate file size
                     if ($file->getSize() > $maxFileSize) {
                         return redirect()->back()->withInput()->with('errors', ['error' => 'Uploaded file is too large. Maximum allowed size is 10 MB.']);
                     }
 
                     $filePath = $file->getTempName();
-
-                    // Read file content and base64 encode it
                     $fileContent = file_get_contents($filePath);
                     $base64Content = base64_encode($fileContent);
 
@@ -97,7 +94,6 @@ class GeminiController extends BaseController
             }
         }
 
-        // Check if there's any input (prompt or supported media)
         if (empty($parts)) {
             return redirect()->back()->withInput()->with('errors', ['error' => 'Prompt or supported media is required.']);
         }
@@ -108,15 +104,12 @@ class GeminiController extends BaseController
             return redirect()->back()->withInput()->with('errors', ['error' => $response['error']]);
         }
 
-        // Deduct balance only on successful API call
         if ($this->userModel->deductBalance($userId, $deductionAmount)) {
             session()->setFlashdata('success', "{$deductionAmount} units deducted for your AI query.");
         } else {
             log_message('error', 'Failed to update user balance after successful AI query for user ID: ' . $userId);
-            // Optionally, you could set an error flash message here
         }
 
-        // Store the result in flashdata and redirect back
         return redirect()->back()->withInput()->with('result', $response['result']);
     }
 }

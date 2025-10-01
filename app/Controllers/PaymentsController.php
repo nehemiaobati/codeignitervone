@@ -10,26 +10,26 @@ use CodeIgniter\HTTP\RedirectResponse;
 
 class PaymentsController extends BaseController
 {
-    protected $paymentModel;
-    protected $paystackService;
-    protected $userModel; // Declare userModel property
+    protected PaymentModel $paymentModel;
+    protected PaystackService $paystackService;
+    protected UserModel $userModel;
 
     public function __construct()
     {
         $this->paymentModel    = new PaymentModel();
         $this->paystackService = \Config\Services::paystackService();
-        $this->userModel       = new UserModel(); // Instantiate UserModel
+        $this->userModel       = new UserModel();
         helper(['form', 'url']);
     }
 
     public function index(): string
     {
         $data = [
-            'email' => session()->get('userEmail') ?? '', // Pre-fill email if user is logged in
+            'email' => session()->get('userEmail') ?? '',
             'errors' => session()->getFlashdata('errors'),
         ];
 
-        return view('payment/form', $data);
+        return view('payment/payment_form', $data); // View name updated
     }
 
     public function initiate(): RedirectResponse
@@ -45,12 +45,10 @@ class PaymentsController extends BaseController
 
         $email  = $this->request->getPost('email');
         $amount = (int) $this->request->getPost('amount');
-        $userId = session()->get('userId'); // Correctly retrieve user ID from session
+        $userId = session()->get('userId');
 
-        // Generate a unique reference
         $reference = 'PAY-' . time() . '-' . bin2hex(random_bytes(5));
 
-        // Save payment as pending
         $this->paymentModel->insert([
             'user_id'   => $userId,
             'email'     => $email,
@@ -72,8 +70,8 @@ class PaymentsController extends BaseController
 
     public function verify(): RedirectResponse
     {
-        $appReference = $this->request->getGet('app_reference'); // Our internal reference
-        $paystackReference = $this->request->getGet('trxref'); // Paystack's transaction reference
+        $appReference = $this->request->getGet('app_reference');
+        $paystackReference = $this->request->getGet('trxref');
 
         if (empty($appReference) || empty($paystackReference)) {
             return redirect()->to(url_to('payment.index'))->with('errors', ['payment' => 'Payment reference not found.']);
@@ -92,14 +90,12 @@ class PaymentsController extends BaseController
         $response = $this->paystackService->verifyTransaction($paystackReference);
 
         if ($response['status'] === true && isset($response['data']['status']) && $response['data']['status'] === 'success') {
-            // Update payment status
             $this->paymentModel->update($payment->id, [
                 'status'            => 'success',
                 'paystack_response' => json_encode($response['data']),
             ]);
 
-            // Accumulate balance
-            if ($payment->user_id) { // Ensure user_id is available
+            if ($payment->user_id) {
                 $this->userModel->addBalance((int) $payment->user_id, (string) $payment->amount);
             }
 

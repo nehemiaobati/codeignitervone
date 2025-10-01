@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controllers;
 
-helper('form');
-
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Email\Email;
+use CodeIgniter\HTTP\RedirectResponse;
+
+helper('form');
 
 class ContactController extends BaseController
 {
-    public function form()
+    public function form(): string
     {
-        return view('contact/form');
+        return view('contact/contact_form'); // View name updated
     }
 
-    public function send()
+    public function send(): RedirectResponse
     {
         $rules = [
             'name'    => 'required|min_length[3]',
@@ -36,18 +35,17 @@ class ContactController extends BaseController
         $emailService = service('email');
 
         $emailService->setFrom(config('Email')->fromEmail, config('Email')->fromName);
-        $emailService->setTo('nehemiahobati@gmail.com'); // Replace with your recipient email
+        $emailService->setTo('nehemiahobati@gmail.com');
         $emailService->setSubject($subject);
         $emailService->setMessage("Name: {$name}\nEmail: {$email}\n\nMessage:\n{$message}");
 
         if ($emailService->send()) {
-            // Set a warning message indicating potential delays, even if sent successfully
             session()->setFlashdata('warning', 'Your message has been sent. Please note that email delivery may experience slight delays.');
             return redirect()->back()->with('success', 'Your message has been sent successfully!');
-        } else {
-            $data = $emailService->printDebugger(['headers']);
-            log_message('error', 'Email sending failed: ' . print_r($data, true));
-            return redirect()->back()->with('error', 'Failed to send your message. Please try again later.');
         }
+        
+        $data = $emailService->printDebugger(['headers']);
+        log_message('error', 'Email sending failed: ' . print_r($data, true));
+        return redirect()->back()->with('error', 'Failed to send your message. Please try again later.');
     }
 }

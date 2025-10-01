@@ -6,18 +6,18 @@ use App\Models\UserModel;
 
 class HomeController extends BaseController
 {
-    protected $userModel; // Declare UserModel property
+    protected UserModel $userModel;
 
     public function __construct()
     {
-        $this->userModel = new UserModel(); // Instantiate UserModel
+        $this->userModel = new UserModel();
     }
 
     public function index(): string
     {
-        $userId = session()->get('userId'); // Get user ID from session
+        $userId = session()->get('userId');
         $user = null;
-        $balance = '0.00'; // Default balance
+        $balance = '0.00';
 
         if ($userId) {
             $user = $this->userModel->find($userId);
@@ -29,9 +29,9 @@ class HomeController extends BaseController
         $data = [
             'pageTitle' => 'Welcome, ' . session()->get('username'),
             'username'  => session()->get('username'),
-            'email'     => session()->get('userEmail'), // Corrected to match session key
-            'member_since' => $user->created_at ?? null, // Get from user object if available
-            'balance'   => $balance, // Pass balance to the view
+            'email'     => session()->get('userEmail'),
+            'member_since' => $user->created_at ?? null,
+            'balance'   => $balance,
         ];
         return view('home/welcome_user', $data);
     }

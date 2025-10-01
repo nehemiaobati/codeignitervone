@@ -1,21 +1,20 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Email\Email; // Added use statement for Email
+use CodeIgniter\HTTP\RedirectResponse;
 
-helper('form'); // Ensure helper is loaded
+helper('form');
 
 class PortfolioController extends BaseController
 {
-    public function index()
+    public function index(): string
     {
-        return view('portfolio/portfolio');
+        return view('portfolio/portfolio_view'); // View name updated
     }
 
-    public function sendEmail()
+    public function sendEmail(): RedirectResponse
     {
         $rules = [
             'name'    => 'required|min_length[3]',
@@ -25,7 +24,6 @@ class PortfolioController extends BaseController
         ];
 
         if (! $this->validate($rules)) {
-            // Redirect back with input and validation errors
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
@@ -34,23 +32,19 @@ class PortfolioController extends BaseController
         $subject = $this->request->getPost('subject');
         $message = $this->request->getPost('message');
 
-        // Get the email service
         $emailService = service('email');
 
-        // Configure email settings (using config from app/Config/Email.php)
         $emailService->setFrom(config('Email')->fromEmail, config('Email')->fromName);
-        $emailService->setTo('nehemiahobati@gmail.com'); // Replace with your recipient email
+        $emailService->setTo('nehemiahobati@gmail.com');
         $emailService->setSubject($subject);
         $emailService->setMessage("Name: {$name}\nEmail: {$email}\n\nMessage:\n{$message}");
 
         if ($emailService->send()) {
-            // Set a success message
             return redirect()->back()->with('success', 'Your message has been sent successfully!');
-        } else {
-            // Log the error and return an error message
-            $data = $emailService->printDebugger(['headers']);
-            log_message('error', 'Portfolio email sending failed: ' . print_r($data, true));
-            return redirect()->back()->with('error', 'Failed to send your message. Please try again later.');
         }
+        
+        $data = $emailService->printDebugger(['headers']);
+        log_message('error', 'Portfolio email sending failed: ' . print_r($data, true));
+        return redirect()->back()->with('error', 'Failed to send your message. Please try again later.');
     }
 }
