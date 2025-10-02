@@ -149,15 +149,15 @@
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item d-flex align-items-center">
                                     <i class="bi bi-person-fill"></i><strong>Username:</strong>
-                                    <span class="ms-auto text-muted"><?= esc($username ?? 'N/A') ?></span>
+                                    <span class="ms-auto text-muted d-block text-truncate"><?= esc($username ?? 'N/A') ?></span>
                                 </li>
                                 <li class="list-group-item d-flex align-items-center">
                                     <i class="bi bi-envelope-fill"></i><strong>Email:</strong>
-                                    <span class="ms-auto text-muted"><?= esc($email ?? 'N/A') ?></span>
+                                    <span class="ms-auto text-muted d-block text-truncate"><?= esc($email ?? 'N/A') ?></span>
                                 </li>
                                 <li class="list-group-item d-flex align-items-center">
                                     <i class="bi bi-calendar-check-fill"></i><strong>Member Since:</strong>
-                                    <span class="ms-auto text-muted"><?= esc($member_since ? date('F d, Y', strtotime($member_since)) : 'N/A') ?></span>
+                                    <span class="ms-auto text-muted d-block text-truncate"><?= esc($member_since ? date('F d, Y', strtotime($member_since)) : 'N/A') ?></span>
                                 </li>
                             </ul>
                         </div>
