@@ -39,7 +39,7 @@ class HomeController extends BaseController
     public function landing(): string
     {
         $data = [
-            'pageTitle' => 'Welcome to Our Custom Landing Page!',
+            'pageTitle' => 'Welcome to Our Page!',
             'heroTitle' => 'Build Your Dreams with Us',
             'heroSubtitle' => 'We provide innovative solutions to help you succeed.',
         ];
