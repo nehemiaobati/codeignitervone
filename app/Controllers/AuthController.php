@@ -38,6 +38,7 @@ class AuthController extends BaseController
             'username' => $this->request->getVar('username'),
             'email'    => $this->request->getVar('email'),
             'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
+            'balance'  => 30, // Add initial balance
         ];
         $userModel->save($data);
 
