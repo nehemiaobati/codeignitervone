@@ -170,9 +170,8 @@
                                 </ul>
                             </li>
                         <?php else: ?>
-                           // <li class="nav-item"><a class="nav-link" href="<?= url_to('welcome') ?>">Home</a></li> 
                             <li class="nav-item"><a class="nav-link" href="<?= url_to('login') ?>">Login</a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-primary text-white ms-lg-2 px-3" href="<?= url_to('register') ?>">Register</a></li>
+                            <li class="nav-item"><a class="btn btn-primary text-white ms-lg-2 px-3" href="<?= url_to('register') ?>">Register</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>
