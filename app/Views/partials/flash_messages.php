@@ -1,34 +1,40 @@
 <?php
-// Check for general success message
-if ($success_data = session()->getFlashdata('success')) :
-    $success_message = is_array($success_data) ? implode(', ', $success_data) : $success_data;
+$flash_data = [
+    'success' => session()->getFlashdata('success'),
+    'error'   => session()->getFlashdata('error'),
+    'alert'   => session()->getFlashdata('alert'),
+    'warning' => session()->getFlashdata('warning'),
+    'info'    => session()->getFlashdata('info'), // Added for completeness
+];
+
+$alert_types = [
+    'success' => 'alert-success',
+    'error'   => 'alert-danger',
+    'alert'   => 'alert-warning',
+    'warning' => 'alert-warning',
+    'info'    => 'alert-info',
+];
+
+$alert_icons = [
+    'success' => '<i class="bi bi-check-circle-fill me-2"></i>',
+    'error'   => '<i class="bi bi-exclamation-triangle-fill me-2"></i>',
+    'alert'   => '<i class="bi bi-exclamation-circle-fill me-2"></i>',
+    'warning' => '<i class="bi bi-exclamation-circle-fill me-2"></i>',
+    'info'    => '<i class="bi bi-info-circle-fill me-2"></i>',
+];
+
+foreach ($flash_data as $key => $data):
+    if ($data):
+        $message = is_array($data) ? implode('<br>', array_map('esc', $data)) : esc($data);
 ?>
-    <div class="alert alert-success" role="alert">
-        <?= esc($success_message) ?>
-    </div>
-<?php
-// Check for general error message
-elseif ($error_data = session()->getFlashdata('error')) :
-    $error_message = is_array($error_data) ? implode(', ', $error_data) : $error_data;
-?>
-    <div class="alert alert-danger" role="alert">
-        <?= esc($error_message) ?>
-    </div>
-<?php
-// Check for specific alert message
-elseif ($alert_data = session()->getFlashdata('alert')) :
-    $alert_message = is_array($alert_data) ? implode(', ', $alert_data) : $alert_data;
-?>
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        <?= esc($alert_message) ?>
+    <div class="alert <?= $alert_types[$key] ?> alert-dismissible fade show d-flex align-items-center" role="alert">
+        <?= $alert_icons[$key] ?>
+        <div>
+            <?= $message ?>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-<?php
-// Check for warning message
-elseif ($warning_data = session()->getFlashdata('warning')) :
-    $warning_message = is_array($warning_data) ? implode(', ', $warning_data) : $warning_data;
+<?php 
+    endif;
+endforeach; 
 ?>
-    <div class="alert alert-warning" role="alert">
-        <?= esc($warning_message) ?>
-    </div>
-<?php endif; ?>

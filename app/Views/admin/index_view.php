@@ -1,44 +1,121 @@
 <?= $this->extend('layouts/default') ?>
 
+<?= $this->section('styles') ?>
+<style>
+    .stat-card {
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+        border: none;
+    }
+    .stat-card .card-body {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    .stat-card .icon {
+        font-size: 2.5rem;
+        padding: 1rem;
+        background-color: var(--bs-primary-bg-subtle);
+        color: var(--bs-primary);
+        border-radius: 50%;
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .stat-card .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+    }
+    .table-wrapper {
+        border-radius: 0.75rem;
+        overflow: hidden;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+    }
+    .table thead {
+        background-color: var(--bs-light);
+    }
+    .table th {
+        font-weight: 600;
+    }
+    .pagination .page-item .page-link {
+        color: var(--primary-color);
+    }
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
-<div class="container">
-    <h1 class="mt-5">Admin Dashboard</h1>
-    <p>Welcome to the admin dashboard. Only administrators can see this page.</p>
-
-    <h2 class="mt-4">User Management</h2>
-    <p>Total balance of all users: $<?= number_format($total_balance, 2) ?></p>
-
-    <div class="table-responsive">
-        <table class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Balance</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($users as $user): ?>
-                    <tr>
-                        <td><?= esc($user->username) ?></td>
-                        <td><?= esc($user->email) ?></td>
-                        <td>$<?= number_format($user->balance, 2) ?></td>
-                        <td>
-                            <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-primary">Details</a>
-                            <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">
-                                <?= csrf_field() ?>
-                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold">Admin Dashboard</h1>
     </div>
 
-    <!-- Add the pagination links -->
-    <div class="d-flex justify-content-center">
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="icon"><i class="bi bi-wallet2"></i></div>
+                    <div>
+                        <h6 class="card-subtitle text-muted">Total User Balance</h6>
+                        <p class="card-text stat-value">$<?= number_format($total_balance, 2) ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <div class="icon"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <h6 class="card-subtitle text-muted">Total Users</h6>
+                        <p class="card-text stat-value"><?= count($users) ?></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Management Table -->
+    <h2 class="h3 fw-bold mb-3">User Management</h2>
+    <div class="card table-wrapper">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">Username</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Balance</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($users as $user): ?>
+                        <tr>
+                            <td><strong><?= esc($user->username) ?></strong></td>
+                            <td><?= esc($user->email) ?></td>
+                            <td>$<?= number_format($user->balance, 2) ?></td>
+                            <td>
+                                <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-outline-primary">Details</a>
+                                <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
         <?= $pager->links() ?>
     </div>
 </div>

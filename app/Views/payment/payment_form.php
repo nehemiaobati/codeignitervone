@@ -1,21 +1,47 @@
 <?= $this->extend('layouts/default') ?>
 
-<?= $this->section('content') ?>
-    <div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 150px);"> <!-- Adjust min-height based on header/footer height -->
-        <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
-            <h1 class="card-title text-center text-primary mb-4">Make a Payment</h1>
+<?= $this->section('styles') ?>
+<style>
+    .payment-section {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .payment-card {
+        border-radius: 1rem;
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.075);
+        border: none;
+        width: 100%;
+        max-width: 450px;
+    }
+</style>
+<?= $this->endSection() ?>
 
-        <?= form_open(url_to('payment.initiate')) ?>
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control form-input-focus" id="email" name="email" value="<?= esc(old('email', $email)) ?>" required>
+<?= $this->section('content') ?>
+<div class="container payment-section">
+    <div class="card payment-card">
+        <div class="card-body p-5">
+            <div class="text-center mb-5">
+                <i class="bi bi-credit-card-2-front-fill text-primary" style="font-size: 3rem;"></i>
+                <h2 class="fw-bold mt-3">Add Funds to Your Account</h2>
+                <p class="text-muted">Securely top up your balance to access our services.</p>
             </div>
-            <div class="mb-3">
-                <label for="amount" class="form-label">Amount (KES)</label>
-                <input type="number" class="form-control form-input-focus" id="amount" name="amount" value="<?= esc(old('amount')) ?>" min="100" required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 mt-3 btn-hover-effect">Pay Now</button>
-        <?= form_close() ?>
+
+            <?= form_open(url_to('payment.initiate')) ?>
+                <div class="form-floating mb-3">
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Your Email" value="<?= esc(old('email', $email)) ?>" required>
+                    <label for="email">Email Address</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="number" class="form-control" id="amount" name="amount" placeholder="Amount (KES)" value="<?= esc(old('amount')) ?>" min="100" required>
+                    <label for="amount">Amount (KES)</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg fw-bold">Proceed to Payment</button>
+                </div>
+            <?= form_close() ?>
         </div>
     </div>
+</div>
 <?= $this->endSection() ?>
