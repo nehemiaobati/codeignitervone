@@ -47,6 +47,15 @@ class CreateUsersTableWithUsername extends Migration
                 'type' => 'BOOLEAN',
                 'default' => false,
             ],
+            'verification_token' => [
+                'type'       => 'VARCHAR',
+                'constraint' => '255',
+                'null'       => true,
+            ],
+            'is_verified' => [
+                'type'    => 'BOOLEAN',
+                'default' => false,
+            ],
         ]);
         $this->forge->addKey('id', true);
         $this->forge->createTable('users');

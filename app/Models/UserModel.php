@@ -12,7 +12,7 @@ class UserModel extends Model
     protected $returnType       = \App\Entities\User::class;
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['email', 'password', 'username', 'balance'];
+    protected $allowedFields    = ['email', 'password', 'username', 'balance', 'verification_token', 'is_verified'];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;

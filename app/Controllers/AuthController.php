@@ -27,22 +27,37 @@ class AuthController extends BaseController
 
         if (! $this->validate($rules)) {
             $response = $this->response;
-            $response->setBody(view('auth/register', [
-                'validation' => $this->validator,
-            ]));
+            $response->setBody(view('auth/register', ['validation' => $this->validator]));
             return $response;
         }
 
         $userModel = new UserModel();
+        $token = bin2hex(random_bytes(50));
         $data = [
             'username' => $this->request->getVar('username'),
             'email'    => $this->request->getVar('email'),
             'password' => password_hash($this->request->getVar('password'), PASSWORD_DEFAULT),
             'balance'  => 30, // Add initial balance
+            'verification_token' => $token,
         ];
         $userModel->save($data);
 
-        return redirect()->to(url_to('login'))->with('success', 'Registration Successful');
+        $emailService = service('email');
+        $emailService->setTo($data['email']);
+        $emailService->setSubject('Email Verification');
+        $verificationLink = url_to('verify_email', $token);
+        $message = view('emails/verification_email', [
+            'name' => $data['username'],
+            'verificationLink' => $verificationLink
+        ]);
+        $emailService->setMessage($message);
+
+        if ($emailService->send()) {
+            return redirect()->to(url_to('login'))->with('success', 'Registration successful. Please check your email to verify your account.');
+        }
+
+        log_message('error', 'Email sending failed: ' . print_r($emailService->printDebugger(['headers']), true));
+        return redirect()->back()->withInput()->with('error', 'Registration failed. Could not send verification email.');
     }
 
     public function login(): string
@@ -78,6 +93,10 @@ class AuthController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Invalid login credentials.');
         }
 
+        if (! $user->is_verified) {
+            return redirect()->back()->withInput()->with('error', 'Please verify your email before logging in.');
+        }
+
         $this->session->set([
             'isLoggedIn' => true,
             'userId'     => $user->id,
@@ -96,4 +115,19 @@ class AuthController extends BaseController
         return redirect()->to(url_to('login'))->with('success', 'Logged out successfully.');
     }
 
+    public function verifyEmail(string $token): ResponseInterface
+    {
+        $userModel = new UserModel();
+        $user = $userModel->where('verification_token', $token)->first();
+
+        if ($user) {
+            $user->is_verified = true;
+            $user->verification_token = null;
+            $userModel->save($user);
+
+            return redirect()->to(url_to('login'))->with('success', 'Email verified successfully. You can now log in.');
+        }
+
+        return redirect()->to(url_to('register'))->with('error', 'Invalid verification token.');
+    }
 }

@@ -17,6 +17,7 @@ $routes->group('', static function ($routes) {
     // Authentication Routes
     $routes->get('register', 'AuthController::register', ['as' => 'register']);
     $routes->post('register/store', 'AuthController::store', ['as' => 'register.store']);
+    $routes->get('verify-email/(:segment)', 'AuthController::verifyEmail/$1', ['as' => 'verify_email']);
     $routes->get('login', 'AuthController::login', ['as' => 'login']);
     $routes->post('login/authenticate', 'AuthController::authenticate', ['as' => 'login.authenticate']);
     $routes->get('logout', 'AuthController::logout', ['as' => 'logout']); // Moved logout here as it's often accessible before full auth
