@@ -3,8 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($pageTitle ?? 'AFRIKENKID') ?></title>
     
+    <!-- SEO Meta Tags -->
+    <title><?= esc($pageTitle ?? 'AFRIKENKID - Crypto & AI Services') ?></title>
+    <meta name="description" content="<?= esc($metaDescription ?? 'Real-time cryptocurrency data and cutting-edge AI insights.') ?>">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<?= current_url() ?>">
+    <meta property="og:title" content="<?= esc($pageTitle ?? 'AFRIKENKID') ?>">
+    <meta property="og:description" content="<?= esc($metaDescription ?? 'Real-time cryptocurrency data and cutting-edge AI insights.') ?>">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="<?= current_url() ?>">
+    <meta property="twitter:title" content="<?= esc($pageTitle ?? 'AFRIKENKID') ?>">
+    <meta property="twitter:description" content="<?= esc($metaDescription ?? 'Real-time cryptocurrency data and cutting-edge AI insights.') ?>">
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->

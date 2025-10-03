@@ -74,7 +74,7 @@
                     <div class="icon"><i class="bi bi-people-fill"></i></div>
                     <div>
                         <h6 class="card-subtitle text-muted">Total Users</h6>
-                        <p class="card-text stat-value"><?= count($users) ?></p>
+                        <p class="card-text stat-value"><?= $total_users ?></p>
                     </div>
                 </div>
             </div>

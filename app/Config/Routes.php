@@ -14,6 +14,9 @@ $routes->group('', static function ($routes) {
     // Home & Welcome Page
     $routes->get('/', 'HomeController::landing', ['as' => 'welcome']);
 
+    // Sitemap Route for SEO
+    $routes->get('sitemap.xml', 'SitemapController::index', ['as' => 'sitemap']);
+
     // Authentication Routes
     $routes->get('register', 'AuthController::register', ['as' => 'register']);
     $routes->post('register/store', 'AuthController::store', ['as' => 'register.store']);

@@ -13,6 +13,7 @@ class AdminController extends BaseController
         // Replace findAll() with paginate() for better performance
         $data['users'] = $userModel->paginate(10);
         $data['pager'] = $userModel->pager; // Pass the pager instance to the view
+        $data['total_users'] = $userModel->pager->getTotal(); // Get total users for accurate stats
         $data['total_balance'] = $userModel->getTotalBalance();
 
         return view('admin/index_view', $data);
