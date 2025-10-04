@@ -40,10 +40,13 @@
                                 <label for="media" class="form-label">Upload Media (Optional)</label>
                                 <div class="file-input-group">
                                     <input type="file" class="form-control" name="media[]" multiple>
+                                    <button type="button" class="btn btn-outline-danger remove-media-btn" style="display: none;">Remove</button>
                                 </div>
                             </div>
                         </div>
                         
+                        <button type="button" id="addMediaBtn" class="btn btn-secondary btn-sm mb-4"><i class="bi bi-plus-circle"></i> Add Another File</button>
+
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg fw-bold"><i class="bi bi-robot"></i> Generate Content</button>
                         </div>
@@ -64,4 +67,52 @@
         <?php endif; ?>
     </div>
 </div>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addBtn = document.getElementById('addMediaBtn');
+        const container = document.getElementById('mediaInputContainer');
+
+        // Function to add a new file input row
+        function addMediaInputRow() {
+            const newRow = document.createElement('div');
+            newRow.className = 'mb-3 media-input-row';
+            newRow.innerHTML = `
+                <div class="file-input-group">
+                    <input type="file" class="form-control" name="media[]" multiple>
+                    <button type="button" class="btn btn-outline-danger remove-media-btn">Remove</button>
+                </div>
+            `;
+            container.appendChild(newRow);
+            
+            // Show remove button on the first input if it's hidden
+            const firstRemoveBtn = container.querySelector('.media-input-row:first-child .remove-media-btn');
+            if(firstRemoveBtn) {
+                firstRemoveBtn.style.display = 'inline-block';
+            }
+        }
+
+        // Add button event listener
+        addBtn.addEventListener('click', addMediaInputRow);
+
+        // Event delegation for remove buttons
+        container.addEventListener('click', function(event) {
+            if (event.target.classList.contains('remove-media-btn')) {
+                // Remove the entire parent row
+                event.target.closest('.media-input-row').remove();
+                
+                // If only one input row is left, hide its remove button
+                const remainingRows = container.querySelectorAll('.media-input-row');
+                if (remainingRows.length === 1) {
+                    const lastRemoveBtn = remainingRows[0].querySelector('.remove-media-btn');
+                    if(lastRemoveBtn) {
+                        lastRemoveBtn.style.display = 'none';
+                    }
+                }
+            }
+        });
+    });
+</script>
 <?= $this->endSection() ?>
