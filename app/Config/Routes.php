@@ -25,6 +25,12 @@ $routes->group('', static function ($routes) {
     $routes->post('login/authenticate', 'AuthController::authenticate', ['as' => 'login.authenticate']);
     $routes->get('logout', 'AuthController::logout', ['as' => 'logout']); // Moved logout here as it's often accessible before full auth
 
+    // Forgot Password Routes
+    $routes->get('forgot-password', 'AuthController::forgotPasswordForm', ['as' => 'auth.forgot_password']);
+    $routes->post('forgot-password', 'AuthController::sendResetLink', ['as' => 'auth.send_reset_link']);
+    $routes->get('reset-password/(:segment)', 'AuthController::resetPasswordForm/$1', ['as' => 'auth.reset_password']);
+    $routes->post('reset-password', 'AuthController::updatePassword', ['as' => 'auth.update_password']);
+
     // Contact Routes
     $routes->get('contact', 'ContactController::form', ['as' => 'contact.form']);
     $routes->post('contact/send', 'ContactController::send', ['as' => 'contact.send']);

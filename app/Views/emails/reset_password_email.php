@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify Your Email Address</title>
+    <title>Password Reset Request</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f7; margin: 0; padding: 0; }
         .wrapper { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
@@ -20,18 +20,19 @@
 <body>
     <div class="wrapper">
         <div class="header">
-            <h1>Welcome to AFRIKENKID!</h1>
+            <h1>Password Reset Request</h1>
         </div>
         <div class="content">
             <p>Hello <?= esc($name) ?>,</p>
-            <p>Thank you for registering. Please click the button below to verify your email address and activate your account:</p>
+            <p>We received a request to reset the password for your account. To proceed, please click the button below:</p>
             <div class="button-container">
-                <a href="<?= esc($verificationLink, 'attr') ?>" class="button">Verify Email Address</a>
+                <a href="<?= esc($resetLink, 'attr') ?>" class="button">Reset Your Password</a>
             </div>
-            <p>Once your account is activated, you can log in and start using our services.</p>
+            <p>If you did not request a password reset, you can safely ignore this email. No changes will be made to your account.</p>
+            <p>Please note that this link is valid for one hour.</p>
             <hr>
             <p style="font-size: 12px; color: #777;">If you're having trouble with the button, copy and paste the URL below into your web browser:<br>
-                <a href="<?= esc($verificationLink, 'attr') ?>" class="link"><?= esc($verificationLink) ?></a>
+                <a href="<?= esc($resetLink, 'attr') ?>" class="link"><?= esc($resetLink) ?></a>
             </p>
         </div>
         <div class="footer">
@@ -39,4 +40,4 @@
         </div>
     </div>
 </body>
-</html>```
+</html>

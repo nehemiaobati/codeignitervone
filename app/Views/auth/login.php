@@ -92,6 +92,7 @@
                                     <button type="submit" class="btn btn-primary btn-lg">Login</button>
                                 </div>
                                 <p class="mt-4 text-center text-muted">Don't have an account? <a href="<?= url_to('register') ?>">Register here</a></p>
+                                <p class="mt-4 text-center text-muted"><a href="<?= url_to('auth.forgot_password') ?>">Forgot Password?</a></p>
                             </form>
                         </div>
                     </div>
