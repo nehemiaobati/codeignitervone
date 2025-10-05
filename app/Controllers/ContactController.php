@@ -36,6 +36,7 @@ class ContactController extends BaseController
 
         $emailService->setFrom(config('Email')->fromEmail, config('Email')->fromName);
         $emailService->setTo('nehemiahobati@gmail.com');
+        $emailService->setReplyTo('afrikenkid@gmail.com');
         $emailService->setSubject($subject);
         $emailService->setMessage("Name: {$name}\nEmail: {$email}\n\nMessage:\n{$message}");
 
