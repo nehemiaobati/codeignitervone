@@ -192,7 +192,7 @@
                                     <i class="bi bi-person-circle"></i> <?= esc(session()->get('username')) ?>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li><a class="dropdown-item" href="<?= url_to('home') ?>">My Account</a></li>
+                                    <li><a class="dropdown-item" href="<?= url_to('account.index') ?>">My Account</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="<?= url_to('logout') ?>">Logout</a></li>
                                 </ul>

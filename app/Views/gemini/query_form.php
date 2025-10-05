@@ -114,5 +114,22 @@
             }
         });
     });
+
+    // Add interactive status for generation
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML; // Store original text if needed later
+
+    form.addEventListener('submit', function(event) {
+        // Prevent default submission to add loading state first
+        event.preventDefault();
+
+        // Disable the button and show loading state
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+        submitButton.disabled = true;
+
+        // Submit the form programmatically
+        form.submit();
+    });
 </script>
 <?= $this->endSection() ?>
