@@ -28,7 +28,7 @@ class AccountController extends BaseController
 
         // Replace findAll() with paginate() for better performance
         // Setting items per page to 5 to test if pagination triggers with 11 records
-        $data['transactions'] = $paymentModel->where('user_id', $userId)->paginate(5);
+        $data['transactions'] = $paymentModel->where('user_id', $userId)->orderBy('created_at', 'DESC')->paginate(5);
         $data['pager'] = $paymentModel->pager; // Pass the pager instance to the view
 
         if (!$user) {

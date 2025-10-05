@@ -73,41 +73,12 @@
 <?= $this->section('content') ?>
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold">Admin Dashboard</h1>
-        <form action="<?= url_to('admin.users.search') ?>" method="GET" class="d-flex">
-            <input type="text" name="q" class="form-control me-2" placeholder="Search users..." value="<?= esc($search_query ?? '') ?>">
-            <button type="submit" class="btn btn-outline-primary">Search</button>
-        </form>
+        <h1 class="fw-bold">Search Results for: "<?= esc($search_query) ?>"</h1>
+        <a href="<?= url_to('admin.index') ?>" class="btn btn-secondary">Back to Dashboard</a>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="icon"><i class="bi bi-wallet2"></i></div>
-                    <div>
-                        <h6 class="card-subtitle text-muted">Total User Balance</h6>
-                        <p class="card-text stat-value">$<?= number_format($total_balance, 2) ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="icon"><i class="bi bi-people-fill"></i></div>
-                    <div>
-                        <h6 class="card-subtitle text-muted">Total Users</h6>
-                        <p class="card-text stat-value"><?= $total_users ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <!-- User Management Table -->
-    <h2 class="h3 fw-bold mb-3">User Management</h2>
+    <h2 class="h3 fw-bold mb-3">Users Found</h2>
     <div class="card table-wrapper">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
@@ -120,28 +91,37 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($users as $user): ?>
+                    <?php if (!empty($users)): ?>
+                        <?php foreach ($users as $user): ?>
+                            <tr>
+                                <td><strong><?= esc($user->username) ?></strong></td>
+                                <td><?= esc($user->email) ?></td>
+                                <td>$<?= number_format($user->balance, 2) ?></td>
+                                <td>
+                                    <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-outline-primary">Details</a>
+                                    <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">
+                                        <?= csrf_field() ?>
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><strong><?= esc($user->username) ?></strong></td>
-                            <td><?= esc($user->email) ?></td>
-                            <td>$<?= number_format($user->balance, 2) ?></td>
-                            <td>
-                                <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-outline-primary">Details</a>
-                                <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">
-                                    <?= csrf_field() ?>
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">Delete</button>
-                                </form>
-                            </td>
+                            <td colspan="4" class="text-center">No users found matching your search criteria.</td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- Pagination -->
-    <div class="d-flex justify-content-center mt-4">
-        <?= $pager->links() ?>
-    </div>
+    <!-- Pagination - Note: Pagination for search results might need custom implementation if not handled by the controller -->
+    <!-- If $pager is available and has links, display them -->
+    <?php if (isset($pager) && $pager->hasPages()): ?>
+        <div class="d-flex justify-content-center mt-4">
+            <?= $pager->links() ?>
+        </div>
+    <?php endif; ?>
 </div>
 <?= $this->endSection() ?>

@@ -61,6 +61,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->get('users/(:num)', 'AdminController::show/$1', ['as' => 'admin.users.show']);
         $routes->post('users/update_balance/(:num)', 'AdminController::updateBalance/$1', ['as' => 'admin.users.update_balance']);
         $routes->post('admin/users/delete/(:num)', 'AdminController::delete/$1', ['as' => 'admin.users.delete']); // Corrected path to 'admin/users/delete'
+        $routes->get('admin/users/search', 'AdminController::searchUsers', ['as' => 'admin.users.search']);
     });
 
     // Payment Routes
