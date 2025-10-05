@@ -6,73 +6,87 @@ use App\Controllers\BaseController;
 use App\Models\UserModel;
 use App\Models\PaymentModel;
 
+/**
+ * Handles user account-related functionalities, including displaying user information,
+ * transaction history, and processing payment references.
+ */
 class AccountController extends BaseController
 {
+    /**
+     * Displays the user's account information and transaction history.
+     *
+     * Retrieves user details and paginated transaction data for the logged-in user.
+     * Processes transaction references to determine the correct display value.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface The rendered account index view.
+     */
     public function index()
     {
         $userModel = new UserModel();
         $paymentModel = new PaymentModel();
 
-        // Assuming user ID is stored in session after login
-        $userId = session()->get('userId'); // Corrected session key to match AuthController
+        // Retrieve the user ID from the session.
+        $userId = session()->get('userId');
 
+        // If the user is not logged in, redirect to the login page.
         if (!$userId) {
-            // Redirect to login if user is not logged in
             return redirect()->to(url_to('login'));
         }
 
         $user = $userModel->find($userId);
 
-        // Pass user data to the view
+        // Pass user data to the view.
         $data['user'] = $user;
 
-        // Replace findAll() with paginate() for better performance
-        // Setting items per page to 5 to test if pagination triggers with 11 records
+        // Retrieve paginated transactions for the user, ordered by creation date.
+        // Displays 5 transactions per page.
         $data['transactions'] = $paymentModel->where('user_id', $userId)->orderBy('created_at', 'DESC')->paginate(5);
-        $data['pager'] = $paymentModel->pager; // Pass the pager instance to the view
+        // Pass the pager instance to the view for pagination controls.
+        $data['pager'] = $paymentModel->pager;
 
+        // If the user is not found (which should not happen if logged in), redirect to home.
         if (!$user) {
-            // Handle case where user is not found (should not happen if logged in)
             return redirect()->to(url_to('home'))->with('error', 'User not found.');
         }
 
-        // Initialize display_references array
+        // Initialize an array to store display references for transactions.
         $data['display_references'] = [];
 
-        // Fetch total transaction count for debugging pagination
+        // Fetch total transaction count for debugging pagination.
         $totalTransactions = $paymentModel->where('user_id', $userId)->countAllResults();
         log_message('debug', 'Total transactions for user ID ' . $userId . ': ' . $totalTransactions);
 
-        // Process transactions to determine the reference to display
+        // Process each transaction to determine the reference to display.
         if (!empty($data['transactions'])) {
-            foreach ($data['transactions'] as $transaction) { // Added foreach loop here
+            foreach ($data['transactions'] as $transaction) {
                 $paystack_ref = null;
-                $db_ref = $transaction->reference ?? null; // Reference from payments table
-                $display_ref = 'N/A'; // Default value
+                $db_ref = $transaction->reference ?? null; // Reference from the payments table.
+                $display_ref = 'N/A'; // Default value if no reference is found.
 
-                // Attempt to get reference from paystack_response if available
+                // Attempt to extract the reference from the Paystack response if available.
                 if (!empty($transaction->paystack_response)) {
-                    $paystackResponse = json_decode($transaction->paystack_response, true); // Decode as associative array
+                    $paystackResponse = json_decode($transaction->paystack_response, true); // Decode JSON response.
 
                     if (is_array($paystackResponse)) {
-                        // Try to get reference from paystack response, regardless of status
+                        // Try to get reference from Paystack response, regardless of transaction status.
                         $paystack_ref = $paystackResponse['reference'] ?? null;
                     }
                 }
 
-                // Prioritize paystack_ref if available, otherwise use db_ref
+                // Prioritize the Paystack reference if available, otherwise use the database reference.
                 if (!empty($paystack_ref)) {
                     $display_ref = $paystack_ref;
                 } elseif (!empty($db_ref)) {
                     $display_ref = $db_ref;
                 }
-                // If both are empty, $display_ref remains 'N/A'
+                // If both are empty, $display_ref remains 'N/A'.
 
-                // Add the determined reference to the data array
+                // Add the determined reference to the display_references array.
                 $data['display_references'][] = $display_ref;
             }
         }
 
-        return view('account/index', $data);
+        // Render the account index view with the prepared data.
+        return $this->response->setBody(view('account/index', $data));
     }
 }

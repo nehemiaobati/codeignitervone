@@ -2,10 +2,16 @@
 
 namespace App\Libraries;
 
+/**
+ * Handles interactions with third-party cryptocurrency APIs to fetch blockchain data.
+ */
 class CryptoService
 {
     /**
-     * Fetches and displays the balance for a Bitcoin address.
+     * Fetches the final balance for a given Bitcoin address.
+     *
+     * @param string $address The Bitcoin address to query.
+     * @return array An array containing the balance data or an error message.
      */
     public function getBtcBalance($address)
     {
@@ -27,7 +33,11 @@ class CryptoService
     }
 
     /**
-     * Fetches and displays recent transactions for a Bitcoin address.
+     * Fetches recent transactions for a given Bitcoin address.
+     *
+     * @param string $address The Bitcoin address to query.
+     * @param int    $limit   The maximum number of transactions to return.
+     * @return array An array containing transaction data or an error message.
      */
     public function getBtcTransactions($address, $limit)
     {
@@ -77,7 +87,10 @@ class CryptoService
     }
 
     /**
-     * Fetches and displays the balance for a Litecoin address.
+     * Fetches the final balance for a given Litecoin address.
+     *
+     * @param string $address The Litecoin address to query.
+     * @return array An array containing the balance data or an error message.
      */
     public function getLtcBalance($address)
     {
@@ -101,7 +114,11 @@ class CryptoService
     }
 
     /**
-     * Fetches and displays recent detailed transactions for a Litecoin address.
+     * Fetches recent detailed transactions for a Litecoin address.
+     *
+     * @param string $address The Litecoin address to query.
+     * @param int    $limit   The maximum number of transactions to return.
+     * @return array An array containing transaction data or an error message.
      */
     public function getLtcTransactions($address, $limit)
     {
@@ -166,7 +183,12 @@ class CryptoService
     }
 
     /**
-     * A generic function to make an API request using CodeIgniter's CURLRequest.
+     * Executes a GET request to a specified API endpoint using CURLRequest.
+     *
+     * @param string $url The full URL of the API endpoint.
+     * @return array The decoded JSON response as an associative array.
+     * @throws \CodeIgniter\HTTP\Exceptions\HTTPException If an HTTP error occurs during the request.
+     * @throws \Exception If any other unexpected error occurs during the API request.
      */
     private function makeApiRequest(string $url): array
     {
@@ -190,10 +212,12 @@ class CryptoService
             return $data;
         } catch (\CodeIgniter\HTTP\Exceptions\HTTPException $e) {
             log_message('error', 'Crypto API HTTP Error: ' . $e->getMessage());
-            return ['error' => 'API request failed: ' . $e->getMessage()];
+            // Re-throw or return an error structure that indicates the specific exception type
+            throw $e;
         } catch (\Exception $e) {
             log_message('error', 'Crypto API Error: ' . $e->getMessage());
-            return ['error' => 'An unexpected error occurred during API request: ' . $e->getMessage()];
+            // Re-throw or return an error structure that indicates the specific exception type
+            throw $e;
         }
     }
 }

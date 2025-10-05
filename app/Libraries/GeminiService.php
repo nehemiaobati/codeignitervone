@@ -2,15 +2,33 @@
 
 namespace App\Libraries;
 
+/**
+ * Service layer for interacting with the Google Gemini API.
+ */
 class GeminiService
 {
+    /**
+     * The API key for authenticating with the Gemini API.
+     * @var string|null
+     */
     protected $apiKey;
 
+    /**
+     * Constructor.
+     * Initializes the service and retrieves the Gemini API key from environment variables.
+     */
     public function __construct()
     {
         $this->apiKey = env('GEMINI_API_KEY') ?? getenv('GEMINI_API_KEY');
     }
 
+    /**
+     * Sends a request to the Gemini API to generate content based on text and media parts.
+     *
+     * @param array $parts An array of content parts (text and/or inlineData for files).
+     * @return array An associative array with either a 'result' string on success or an 'error' string on failure.
+     * @throws \Exception If an error occurs during the API request processing.
+     */
     public function generateContent(array $parts): array
     {
         if (!$this->apiKey) {
@@ -40,7 +58,8 @@ class GeminiService
         ];
 
         $requestBody = json_encode($requestPayload, JSON_PRETTY_PRINT);
-
+        
+        // Logs the full request payload. Consider disabling or restricting in production.
         $logFilePath = WRITEPATH . 'logs/gemini_payload.log';
         file_put_contents($logFilePath, "--- Request Payload (" . date('Y-m-d H:i:s') . ") ---\n", FILE_APPEND);
         file_put_contents($logFilePath, $requestBody . "\n\n", FILE_APPEND);
@@ -90,6 +109,8 @@ class GeminiService
             return ['result' => $processedText];
 
         } catch (\Exception $e) {
+            // Log the exception and return an error structure
+            log_message('error', 'Gemini API Request Exception: ' . $e->getMessage());
             return ['error' => 'An error occurred while processing your request: ' . $e->getMessage()];
         }
     }
