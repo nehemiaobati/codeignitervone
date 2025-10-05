@@ -96,7 +96,7 @@
                             <tr>
                                 <td><strong><?= esc($user->username) ?></strong></td>
                                 <td><?= esc($user->email) ?></td>
-                                <td>$<?= number_format($user->balance, 2) ?></td>
+                                <td>Ksh. <?= number_format($user->balance, 2) ?></td>
                                 <td>
                                     <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-outline-primary">Details</a>
                                     <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">

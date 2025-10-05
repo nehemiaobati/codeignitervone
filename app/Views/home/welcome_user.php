@@ -130,7 +130,7 @@
                     <div class="dashboard-card balance-card">
                         <div class="card-body p-5">
                             <p class="text-muted text-uppercase fw-bold mb-2">Current Balance</p>
-                            <div class="balance-amount">$<?= esc(number_format((float)($balance ?? 0), 2)) ?></div>
+                            <div class="balance-amount">Ksh. <?= esc(number_format((float)($balance ?? 0), 2)) ?></div>
                             <p class="text-muted">Available for all services</p>
                             <a href="<?= url_to('payment.index') ?>" class="btn btn-success btn-lg mt-2 px-5">
                                 <i class="bi bi-plus-circle"></i> Add Funds

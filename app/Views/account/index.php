@@ -88,7 +88,7 @@
                         <li class="list-group-item d-flex align-items-center">
                             <i class="bi bi-wallet2"></i>
                             <strong>Balance:</strong>
-                            <span class="ms-auto fw-bold h5 text-success mb-0">$<?= esc(number_format($user->balance, 2)) ?></span>
+                            <span class="ms-auto fw-bold h5 text-success mb-0">Ksh. <?= esc(number_format($user->balance, 2)) ?></span>
                         </li>
                     </ul>
                     <div class="d-grid mt-4">

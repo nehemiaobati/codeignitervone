@@ -46,6 +46,7 @@ class GeminiService
                 ]
             ],
             "generationConfig" => [
+                "maxOutputTokens" => 15536,
                 "thinkingConfig" => [
                     "thinkingBudget" => -1,
                 ],

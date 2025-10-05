@@ -82,17 +82,17 @@
 
     <!-- Stats Cards -->
     <div class="row g-4 mb-4">
-        <div class="col-md-6">
-            <div class="card stat-card">
-                <div class="card-body">
-                    <div class="icon"><i class="bi bi-wallet2"></i></div>
-                    <div>
-                        <h6 class="card-subtitle text-muted">Total User Balance</h6>
-                        <p class="card-text stat-value">$<?= number_format($total_balance, 2) ?></p>
+                    <div class="col-md-6">
+                        <div class="card stat-card">
+                            <div class="card-body">
+                                <div class="icon"><i class="bi bi-wallet2"></i></div>
+                                <div>
+                                    <h6 class="card-subtitle text-muted">Total User Balance</h6>
+                                    <p class="card-text stat-value">Ksh. <?= number_format($total_balance, 2) ?></p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
         <div class="col-md-6">
             <div class="card stat-card">
                 <div class="card-body">
@@ -124,7 +124,7 @@
                         <tr>
                             <td><strong><?= esc($user->username) ?></strong></td>
                             <td><?= esc($user->email) ?></td>
-                            <td>$<?= number_format($user->balance, 2) ?></td>
+                            <td>Ksh. <?= number_format($user->balance, 2) ?></td>
                             <td>
                                 <a href="<?= url_to('admin.users.show', $user->id) ?>" class="btn btn-sm btn-outline-primary">Details</a>
                                 <form action="<?= url_to('admin.users.delete', $user->id) ?>" method="post" class="d-inline">

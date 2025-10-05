@@ -31,7 +31,7 @@
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item d-flex justify-content-between px-0"><strong>Username:</strong> <span><?= esc($user->username) ?></span></li>
                         <li class="list-group-item d-flex justify-content-between px-0"><strong>Email:</strong> <span><?= esc($user->email) ?></span></li>
-                        <li class="list-group-item d-flex justify-content-between px-0"><strong>Current Balance:</strong> <span class="fw-bold h5 text-success mb-0">$<?= number_format($user->balance, 2) ?></span></li>
+                        <li class="list-group-item d-flex justify-content-between px-0"><strong>Current Balance:</strong> <span class="fw-bold h5 text-success mb-0">Ksh. <?= number_format($user->balance, 2) ?></span></li>
                     </ul>
                 </div>
             </div>
