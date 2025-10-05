@@ -77,6 +77,14 @@
 
         // Function to add a new file input row
         function addMediaInputRow() {
+            const mediaRows = container.querySelectorAll('.media-input-row');
+            if (mediaRows.length >= 6) {
+                // Optionally disable the add button if the limit is reached
+                addBtn.disabled = true;
+                addBtn.style.display = 'none'; // Hide the button
+                return; // Stop adding more rows
+            }
+
             const newRow = document.createElement('div');
             newRow.className = 'mb-3 media-input-row';
             newRow.innerHTML = `
@@ -95,24 +103,46 @@
         }
 
         // Add button event listener
-        addBtn.addEventListener('click', addMediaInputRow);
+        addBtn.addEventListener('click', function() {
+            addMediaInputRow();
+            // Re-check button state after adding a row
+            const mediaRows = container.querySelectorAll('.media-input-row');
+            if (mediaRows.length >= 6) {
+                addBtn.disabled = true;
+                addBtn.style.display = 'none';
+            }
+        });
 
         // Event delegation for remove buttons
         container.addEventListener('click', function(event) {
             if (event.target.classList.contains('remove-media-btn')) {
                 // Remove the entire parent row
-                event.target.closest('.media-input-row').remove();
+                const removedRow = event.target.closest('.media-input-row');
+                removedRow.remove();
                 
+                // Check if the add button should be re-enabled/shown
+                const mediaRows = container.querySelectorAll('.media-input-row');
+                if (mediaRows.length < 6) {
+                    addBtn.disabled = false;
+                    addBtn.style.display = 'block'; // Show the button
+                }
+
                 // If only one input row is left, hide its remove button
-                const remainingRows = container.querySelectorAll('.media-input-row');
-                if (remainingRows.length === 1) {
-                    const lastRemoveBtn = remainingRows[0].querySelector('.remove-media-btn');
+                if (mediaRows.length === 1) {
+                    const lastRemoveBtn = mediaRows[0].querySelector('.remove-media-btn');
                     if(lastRemoveBtn) {
                         lastRemoveBtn.style.display = 'none';
                     }
                 }
             }
         });
+
+        // Initial check for button state on page load
+        const initialMediaRows = container.querySelectorAll('.media-input-row');
+        if (initialMediaRows.length >= 6) {
+            addBtn.disabled = true;
+            addBtn.style.display = 'none';
+        }
     });
 
     // Add interactive status for generation
