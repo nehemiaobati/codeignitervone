@@ -17,9 +17,12 @@ class AuthController extends BaseController
      *
      * @return string The rendered registration view.
      */
-    public function register(): string
+    public function register(): string|ResponseInterface
     {
         helper(['form']);
+        if ($this->session->has('isLoggedIn')) {
+            return redirect()->to(url_to('home'));
+        }
         $data = [];
         return view('auth/register', $data);
     }
