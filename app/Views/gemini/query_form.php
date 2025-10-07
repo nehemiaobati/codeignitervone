@@ -59,8 +59,8 @@
         <div class="col-lg-8">
             <div class="card results-card mt-4">
                 <div class="card-body p-4 p-md-5">
-                    <h3 class="fw-bold mb-4">AI Response</h3>
-                    <pre><?= esc($result) ?></pre>
+                    <h3 class="fw-bold mb-4 d-flex justify-content-between align-items-center">AI Response <button id="copy-response-btn" class="btn btn-sm btn-outline-primary">Copy</button></h3>
+                    <pre id="ai-response-content"><?= esc($result) ?></pre>
                 </div>
             </div>
         </div>
@@ -161,5 +161,31 @@
         // Submit the form programmatically
         form.submit();
     });
+
+    // Copy to clipboard functionality
+    const copyBtn = document.getElementById('copy-response-btn');
+    const responseContent = document.getElementById('ai-response-content');
+
+    if (copyBtn && responseContent) {
+        copyBtn.addEventListener('click', function() {
+            const textToCopy = responseContent.innerText;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                // Success feedback
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = 'Copied!';
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                }, 2000); // Reset text after 2 seconds
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                // Optionally provide user feedback for failure
+                const originalText = copyBtn.innerText;
+                copyBtn.innerText = 'Failed!';
+                setTimeout(() => {
+                    copyBtn.innerText = originalText;
+                }, 2000);
+            });
+        });
+    }
 </script>
 <?= $this->endSection() ?>
