@@ -43,6 +43,11 @@ class GeminiController extends BaseController
         }
 
         $inputText = $this->request->getPost('prompt');
+        $isReport = $this->request->getPost('report') === '1';
+
+        if ($isReport) {
+            $inputText = "no markdown\n\n{$inputText}";
+        }
         $uploadedFiles = $this->request->getFileMultiple('media') ?: [];
 
         $supportedMimeTypes = [

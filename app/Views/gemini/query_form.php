@@ -27,8 +27,14 @@
         <div class="col-lg-7">
             <div class="card query-card">
                  <div class="card-body p-4 p-md-5">
-                    <h2 class="card-title fw-bold mb-4">Gemini AI Service</h2>
                     <form action="<?= url_to('gemini.generate') ?>" method="post" enctype="multipart/form-data">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h2 class="card-title fw-bold mb-0">Gemini AI Service</h2>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="reportToggle" name="report" value="1">
+                                <label class="form-check-label" for="reportToggle">Report</label>
+                            </div>
+                        </div>
                         <?= csrf_field() ?>
                         <div class="form-floating mb-3">
                             <textarea id="prompt" name="prompt" class="form-control" placeholder="Enter your prompt" style="height: 150px" required><?= old('prompt') ?></textarea>
